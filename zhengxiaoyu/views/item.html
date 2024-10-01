@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Crowdfunding platform</title>
+    <style>
+        .platform-title{
+            text-align: center;
+        }
+        .menu-list {
+            text-align: center;
+            background-color: #eaeaea;
+            padding: 10px;
+            margin-bottom: 30px;
+        }
+        .menu-list .menu-item {
+            margin: 0 10px;
+        }
+        .menu-list .menu-item:active {
+            color: red;
+        }
+        .sys-info {
+            text-align: center;
+        }
+        .item{
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .item-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .item-value {
+            color: cornflowerblue;
+        }
+        button {
+            background-color: cornflowerblue;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+<h1 class="platform-title">Crowdfunding platform</h1>
+<!-- menu list -->
+<div class="menu-list">
+    <a class="menu-item" href="./welcome.html">Home Page</a>
+    <a class="menu-item" href="./search.html">search Page</a>
+</div>
+<div class="all-item-info">
+    <div class="item">
+        <div class="item-label">caption</div>
+        <div class="item-value"><span id="caption"></span></div>
+    </div>
+    <div class="item">
+        <div class="item-label">category</div>
+        <div class="item-value"><span id="category"></span></div>
+    </div>
+    <div class="item">
+        <div class="item-label">organizer</div>
+        <div class="item-value"><span id="organizer"></span></div>
+    </div>
+    <div class="item">
+        <div class="item-label">city</div>
+        <div class="item-value"><span id="city"></span></div>
+    </div>
+    <div class="item">
+        <div class="item-label">target funding</div>
+        <div class="item-value"><span id="target_funding"></span></div>
+    </div>
+    <div class="item">
+        <div class="item-label">current funding</div>
+        <div class="item-value"><span id="current_funding"></span></div>
+    </div>
+    <button onclick="donation()">Donation</button>
+</div>
+</body>
+<script>
+    getItem();
+    // get detail info
+    function getItem() {
+        new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('get', `http://localhost:3100/index/getItem?f_id=${+location.search.split('=')[1]}`, true);
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status == 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                }
+            }
+        }).then(response => {
+            // set value
+            document.querySelector('#caption').innerText = response.caption;
+            document.querySelector('#category').innerText = response.name;
+            document.querySelector('#organizer').innerText = response.organizer;
+            document.querySelector('#city').innerText = response.city;
+            document.querySelector('#target_funding').innerText = response.target_funding;
+            document.querySelector('#current_funding').innerText = response.current_funding;
+        });
+    }
+
+    // donation click
+    function donation() {
+        alert('This feature is under construction');
+    }
+</script>
+</html>

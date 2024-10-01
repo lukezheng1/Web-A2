@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Crowdfunding platform</title>
+    <style>
+        .platform-title{
+            text-align: center;
+        }
+        .menu-list {
+            text-align: center;
+            background-color: #eaeaea;
+            padding: 10px;
+            margin-bottom: 30px;
+        }
+        .menu-list .menu-item {
+            margin: 0 10px;
+        }
+        .menu-list .menu-item:active {
+            color: red;
+        }
+        .sys-info {
+            text-align: center;
+        }
+        .no-fundraiser {
+            text-align: center;
+            color: #FF0000;
+            font-weight: bold;
+            display: none;
+        }
+        table{
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        thead {
+            background-color: cornflowerblue;
+        }
+        button {
+            background-color: cornflowerblue;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+<h1 class="platform-title">Crowdfunding platform</h1>
+<!-- menu list -->
+<div class="menu-list">
+    <a class="menu-item" href="./welcome.html">Home Page</a>
+    <a class="menu-item" href="./search.html">search Page</a>
+</div>
+<!-- operate list -->
+<div class="operate-list">
+    <select class="city-operate"></select>
+    <select class="organizer-operate"></select>
+    <select class="category-operate"></select>
+    <button onclick="search()">Search</button>
+    <button onclick="reset()">Reset</button>
+</div>
+<table border="1" cellpadding="5">
+    <thead>
+    <tr>
+        <th>Caption</th>
+        <th>Category</th>
+        <th>Organizer</th>
+        <th>City</th>
+        <th>Target funding</th>
+        <th>Current funding</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<div class="no-fundraiser">No data available</div>
+</body>
+<script>
+    // search latest data
+    search();
+    function search() {
+        new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            console.log(document.querySelector('.category-operate'));
+            xhr.open('get', `http://localhost:3100/index/search?category_id=${document.querySelector('.category-operate').value}&organizer=${document.querySelector('.organizer-operate').value}&city=${document.querySelector('.city-operate').value}`, true);
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status == 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                }
+            }
+        }).then(response => {
+            // reset dom element
+            document.querySelector('tbody').innerHTML = '';
+            document.querySelector('.no-fundraiser').style.display = 'none';
+            if (!!response.length >= 1) {
+                response.forEach(r => {
+                    // set td value
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${r.caption}</td>
+                    <td>${r.name}</td>
+                    <td>${r.organizer}</td>
+                    <td>${r.city}</td>
+                    <td>${r.target_funding}</td>
+                    <td>${r.current_funding}</td>
+                    <td>
+                        <a href="./item.html?f_id=${r.fundraiser_id}"><button>View details</button></a>
+                        <button class="d_btn">Donation</button>
+                    </td>
+            `;
+                    document.querySelector('tbody').appendChild(tr);
+                    // donation click
+                    document.querySelector(`.d_btn`).onclick = function() {
+                        alert('This feature is under construction');
+                    };
+                });
+            } else {
+                // no data
+                document.querySelector('.no-fundraiser').style.display = 'block';
+            }
+        });
+    }
+    // reset all data
+    function reset() {
+        document.querySelector('.category-operate').value = '';
+        document.querySelector('.organizer-operate').value = '';
+        document.querySelector('.city-operate').value = '';
+        search();
+    }
+    // search category
+    searchCategory();
+    function searchCategory() {
+        new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('get', `http://localhost:3100/index/searchCategory`, true);
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status == 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                }
+            }
+        }).then(response => {
+            // default option
+            document.querySelector('.category-operate').innerHTML = `<option selected disabled value="">category</option>`;
+            // set all options
+            response.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.category_id;
+                option.innerHTML = r.name;
+                document.querySelector('.category-operate').appendChild(option);
+            });
+        });
+    }
+    // search organizer
+    searchOrganizer();
+    function searchOrganizer() {
+        new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('get', `http://localhost:3100/index/searchOrganizer`, true);
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status == 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                }
+            }
+        }).then(response => {
+            // default option
+            document.querySelector('.organizer-operate').innerHTML = `<option selected disabled value="">organizer</option>`;
+            // set all options
+            response.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.organizer;
+                option.innerHTML = r.organizer;
+                document.querySelector('.organizer-operate').appendChild(option);
+            });
+        });
+    }
+    // search city
+    searchCity();
+    function searchCity() {
+        new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('get', `http://localhost:3100/index/searchCity`, true);
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status == 200) {
+                    resolve(JSON.parse(xhr.responseText));
+                }
+            }
+        }).then(response => {
+            // default option
+            document.querySelector('.city-operate').innerHTML = `<option selected disabled value="">city</option>`;
+            // set all options
+            response.forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.city;
+                option.innerHTML = r.city;
+                document.querySelector('.city-operate').appendChild(option);
+            });
+        });
+    }
+</script>
+</html>
